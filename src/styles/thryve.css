@@ -1,0 +1,42 @@
+/* src/styles/thryve.css — shared THRYVE design tokens, trimmed from the prototype */
+:root{
+  --ink:#171717;--paper:#f8f0dc;--paper2:#fff8e8;
+  --teal:#148f84;--teal2:#72cfc0;--pink:#ef63b4;--pink2:#f7a7d6;
+  --yellow:#f7dd58;--blue:#4d75d8;--orange:#f39b58;--green:#a9d968;--red:#ef7777;
+  --shadow:8px 8px 0 var(--ink);--shadow-sm:5px 5px 0 var(--ink);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;color:var(--ink);
+  background:linear-gradient(rgba(23,23,23,.08) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(23,23,23,.08) 1px,transparent 1px),var(--teal);
+  background-size:36px 36px;font-family:Arial,Helvetica,sans-serif;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.main{max-width:1100px;margin:0 auto;padding:30px}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px;gap:15px;flex-wrap:wrap}
+.section-head h2{font-family:Georgia,serif;font-size:clamp(34px,4vw,48px);margin:0;letter-spacing:-2px}
+.section-head p{font-weight:700;max-width:600px}
+.btn{border:3px solid var(--ink);background:var(--yellow);padding:12px 17px;font-weight:1000;box-shadow:var(--shadow-sm);text-transform:uppercase;display:inline-block;transition:.12s}
+.btn:hover{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+.btn.pink{background:var(--pink)}
+.btn.paper{background:var(--paper)}
+.btn.teal{background:var(--teal2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.form-card{max-width:780px;margin:0 auto 30px;border:3px solid var(--ink);background:var(--paper);box-shadow:var(--shadow);padding:30px}
+.form-card h2{font-family:Georgia,serif;font-size:38px;margin:0 0 8px}
+label{display:block;font-size:11px;font-weight:1000;text-transform:uppercase;letter-spacing:1px;margin:14px 0 7px}
+input,textarea{width:100%;border:3px solid var(--ink);background:#fffdf2;padding:12px;outline:none;box-shadow:3px 3px 0 var(--ink)}
+textarea{min-height:80px;resize:vertical}
+.member{border:2px solid var(--ink);padding:14px;background:#fff8e8;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.card{border:3px solid var(--ink);background:var(--paper);box-shadow:var(--shadow-sm);padding:20px}
+.card:nth-child(2n){background:var(--paper2)}
+.card:nth-child(3n){background:#f6d9ec}
+.card h3{font-family:Georgia,serif;font-size:26px;margin:5px 0 10px}
+.tag{display:inline-block;border:2px solid var(--ink);padding:5px 8px;background:var(--yellow);font-size:10px;font-weight:1000}
+.notice{border:3px solid var(--ink);background:var(--yellow);padding:12px;box-shadow:var(--shadow-sm);font-weight:900;margin:12px 0}
+.notice.blue{background:#d6e5ff}
+.notice.red{background:#ffd1d1}
+pre.raw{border:2px solid var(--ink);background:#fffdf2;padding:12px;overflow:auto;font-size:12px}
