@@ -1,78 +1,32 @@
-# THRYVE
+# React + TypeScript + Vite
 
-## AI-Based Collaborative Learning Intelligence
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-> **From individual contributions to collective intelligence.**
+Currently, two official plugins are available:
 
-THRYVE is an AI-powered collaborative learning platform designed to help student teams work together more effectively.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-When students work in groups, collaboration can become fragmented. Some members may participate more than others, important discussions may get lost, individual contributions may remain disconnected, and teams may struggle to combine their knowledge into a coherent solution.
+## React Compiler
 
-THRYVE addresses these challenges by analyzing **authorized group discussions, shared documents, task contributions, and project activity** to identify knowledge exchange patterns, summarize collective insights, detect unresolved topics, and recommend meaningful collaboration activities.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
----
+## Expanding the Oxlint configuration
 
-# 1. Problem Statement
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
 
-Students working in groups often face problems such as:
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
+```
 
-- Unequal participation among team members
-- Fragmented group discussions
-- Difficulty tracking individual contributions
-- Important ideas getting lost in conversations
-- Difficulty combining individual knowledge
-- Unresolved questions within the team
-- Lack of meaningful collaboration between members
-- Difficulty identifying project delays and blockers
-
-Traditional project management systems mainly focus on task completion.
-
-THRYVE goes further by focusing on **collaboration, learning, knowledge exchange, and collective intelligence**.
-
----
-
-# 2. Our Solution
-
-THRYVE provides a unified workspace where students can:
-
-- Create and manage teams
-- Create and manage projects
-- Assign and track tasks
-- Generate AI-assisted roles and sprints
-- Communicate through team chat
-- Share and request access to documents
-- Track notifications and project activity
-- Identify knowledge exchange
-- Summarize important discussions
-- Detect unresolved questions
-- Receive AI-powered collaboration recommendations
-- Analyze overall project and team activity
-
-The platform converts different forms of team activity into useful insights that help students collaborate more effectively.
-
----
-
-# 3. How THRYVE Works
-
-```text
-Team Activity
-      │
-      ├── Discussions
-      ├── Documents
-      ├── Tasks
-      └── Project Activity
-              │
-              ▼
-        AI Analysis Engine
-              │
-              ├── Knowledge Exchange
-              ├── Collective Insights
-              ├── Unresolved Topics
-              ├── Discussion Summary
-              └── Collaboration Recommendations
-              │
-              ▼
-        THRYVE Dashboard
-              │
-              ▼
-       Better Collaboration
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
