@@ -25,17 +25,22 @@ export default function ChatWindow({ projectId, currentUserId, currentUserName }
   const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     let unsubscribe: (() => void) | undefined;
 
     (async () => {
       const initial = await fetchMessages(projectId);
+      if (cancelled) return; // effect was cleaned up before this finished — don't subscribe
       setMessages(initial);
       unsubscribe = subscribeToMessages(projectId, (row) => {
         setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
       });
     })();
 
-    return () => unsubscribe?.();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [projectId]);
 
   useEffect(() => {

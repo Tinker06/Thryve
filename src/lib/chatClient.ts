@@ -6,7 +6,7 @@ export type ChatMode = "team_ai" | "ask_ai" | "team_only";
 export interface ChatMessageRow {
   id: string;
   project_id: string;
-  sender_id: string;
+  sender_id: string | null;
   sender_name: string;
   mode: ChatMode;
   content: string;
@@ -16,7 +16,7 @@ export interface ChatMessageRow {
 
 export async function fetchMessages(projectId: string): Promise<ChatMessageRow[]> {
   const { data, error } = await supabase
-    .from("project_messages")
+    .from("chat_messages")
     .select("*")
     .eq("project_id", projectId)
     .order("created_at", { ascending: true });
@@ -36,13 +36,18 @@ export async function sendMessage(row: {
   content: string;
   is_ai?: boolean;
 }): Promise<void> {
-  const { error } = await supabase.from("project_messages").insert({
+  const isAi = row.is_ai ?? false;
+
+  const { error } = await supabase.from("chat_messages").insert({
     project_id: row.project_id,
-    sender_id: row.sender_id,
+    // "ai" is not a real project_members.id, so store null for AI rows
+    // instead of violating the foreign key — sender_name/is_ai still
+    // identify it as the AI in the UI.
+    sender_id: isAi ? null : row.sender_id,
     sender_name: row.sender_name,
     mode: row.mode,
     content: row.content,
-    is_ai: row.is_ai ?? false,
+    is_ai: isAi,
   });
 
   if (error) {
@@ -56,13 +61,13 @@ export function subscribeToMessages(
   onInsert: (row: ChatMessageRow) => void
 ) {
   const channel = supabase
-    .channel(`project_messages:${projectId}`)
+    .channel(`chat_messages:${projectId}`)
     .on(
       "postgres_changes",
       {
         event: "INSERT",
         schema: "public",
-        table: "project_messages",
+        table: "chat_messages",
         filter: `project_id=eq.${projectId}`,
       },
       (payload) => onInsert(payload.new as ChatMessageRow)

@@ -5,6 +5,7 @@ import {
   type ProjectMemberInput,
   type RoleAssignment,
 } from "../lib/aiClient";
+import { CURRENT_PROJECT_ID } from "../lib/currentProject";
 
 export default function RoleAssignmentPage() {
   const [projectDescription, setProjectDescription] = useState("");
@@ -41,7 +42,7 @@ export default function RoleAssignmentPage() {
     setRoles(null);
     setRawResult(null);
 
-    const res = await generateRoles("demo-project-id", projectDescription, members);
+    const res = await generateRoles(CURRENT_PROJECT_ID, projectDescription, members);
 
     setLoading(false);
 

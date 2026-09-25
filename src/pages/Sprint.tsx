@@ -1,4 +1,5 @@
 // src/pages/Sprint.tsx
+import { CURRENT_PROJECT_ID, CURRENT_USER_ID } from "../lib/currentProject";
 import { useState } from "react";
 import {
   generateSprint,
@@ -54,7 +55,7 @@ export default function SprintPage() {
     setApproved(false);
     setShowRegenBox(false);
 
-    const res = await generateSprint("demo-project-id");
+    const res = await generateSprint(CURRENT_PROJECT_ID);
     setLoading(false);
 
     if (!res.success) {
@@ -76,7 +77,7 @@ export default function SprintPage() {
     setLoading(true);
     setError(null);
 
-    const res = await regenerateSprint("demo-project-id", feedback);
+    const res = await regenerateSprint(CURRENT_PROJECT_ID, feedback);
     setLoading(false);
 
     if (!res.success) {
@@ -110,7 +111,7 @@ export default function SprintPage() {
       const { data: members, error: membersErr } = await supabase
         .from("project_members")
         .select("id, name")
-        .eq("project_id", "demo-project-id");
+        .eq("project_id", CURRENT_PROJECT_ID);
 
       if (membersErr) throw membersErr;
 
@@ -119,7 +120,7 @@ export default function SprintPage() {
           (m) => m.name.toLowerCase().trim() === t.member.toLowerCase().trim()
         );
         return {
-          project_id: "demo-project-id",
+          project_id: CURRENT_PROJECT_ID,
           assignee_id: match ? match.id : null,
           title: t.title,
           status: t.status,
@@ -254,7 +255,7 @@ export default function SprintPage() {
 
                   {placeholderTaskId === t.id && (
                     <PlaceholderBuilder
-                      projectId="demo-project-id"
+                      projectId={CURRENT_PROJECT_ID}
                       taskId={t.id}
                       taskTitle={t.title}
                       approvedByMemberId={t.assigneeId ?? ""}
@@ -267,7 +268,7 @@ export default function SprintPage() {
         </>
       )}
 
-      <SprintChangeSuggestionBox projectId="demo-project-id" userId="demo-user-id" />
+      <SprintChangeSuggestionBox projectId={CURRENT_PROJECT_ID} userId={CURRENT_USER_ID} />
 
       {blockingTask && (
         <BlockTaskModal
