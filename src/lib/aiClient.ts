@@ -4,29 +4,53 @@
 
 const AI_ENDPOINT = "/.netlify/functions/ai-stub";
 
+// ==================================================
+
 export interface AiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
 }
 
-// ---- Shared low-level caller ----
+// ---- Shared low-level caller (Phase 14: timeout + guaranteed no-throw) ----
+const AI_TIMEOUT_MS = 20000; // 20s — Gemini + Netlify cold start can be slow
+
 async function callAi<T>(action: string, payload: unknown): Promise<AiResponse<T>> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+
   try {
     const res = await fetch(AI_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, payload }),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     if (!res.ok) {
+      console.error(`[aiClient] ${action} returned HTTP ${res.status}`);
       return { success: false, error: "AI temporarily unavailable." };
     }
 
     const json = (await res.json()) as AiResponse<T>;
+
+    if (typeof json?.success !== "boolean") {
+      console.error(`[aiClient] ${action} returned malformed response`, json);
+      return { success: false, error: "AI temporarily unavailable." };
+    }
+
     return json;
-  } catch (err) {
-    console.error(`[aiClient] ${action} failed:`, err);
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+
+    if (err?.name === "AbortError") {
+      console.error(`[aiClient] ${action} timed out after ${AI_TIMEOUT_MS}ms`);
+      return { success: false, error: "AI request timed out." };
+    }
+
+    console.error(`[aiClient] ${action} failed:`, err?.message ?? err);
     return { success: false, error: "AI temporarily unavailable." };
   }
 }
