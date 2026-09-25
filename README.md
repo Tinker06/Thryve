@@ -4,7 +4,7 @@
 
 ---
 
-## 📌 Project Overview
+##  Project Overview
 
 **THRYVE** is an AI-based collaborative learning intelligence platform designed for student project teams.
 
@@ -33,7 +33,7 @@ The platform converts this information into actionable collaboration intelligenc
 
 ---
 
-# 🎯 Problem Statement
+#  Problem Statement
 
 Student teams frequently collaborate using multiple disconnected tools such as:
 
@@ -59,7 +59,7 @@ THRYVE provides a centralized workspace that combines collaboration, project act
 
 ---
 
-# 💡 Proposed Solution
+#  Proposed Solution
 
 THRYVE creates a shared project environment where team members can:
 
@@ -84,7 +84,7 @@ The platform is designed to transform raw collaboration activity into structured
 
 ---
 
-# 🚀 Core Features
+#  Core Features
 
 ## 1. Team Workspace
 
@@ -134,7 +134,7 @@ Project information can include:
 
 ---
 
-# 👥 Team Collaboration
+#  Team Collaboration
 
 THRYVE is designed around team-based collaboration.
 
@@ -183,7 +183,7 @@ The platform can generate project-supporting content where required by the workf
 
 ---
 
-# 📋 Sprint Management
+#  Sprint Management
 
 THRYVE supports sprint-based project organization.
 
@@ -210,7 +210,7 @@ Sprint workflows include:
 
 ---
 
-# ✅ Task Management
+#  Task Management
 
 Tasks are central to the collaboration intelligence system.
 
