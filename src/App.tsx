@@ -4,6 +4,7 @@ import RoleAssignmentPage from "./pages/RoleAssignment";
 import SprintPage from "./pages/Sprint";
 import ChatPage from "./pages/Chat";
 import Analysis from "./pages/Analysis";
+import Insights from "./pages/Insights";
 import "./styles/thryve.css";
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/sprint" element={<SprintPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/project/:projectId/analysis" element={<Analysis />} />
+        <Route path="/project/:projectId/insights" element={<Insights />} />
       </Routes>
     </BrowserRouter>
   );
