@@ -2,7 +2,7 @@
 // Frontend wrapper for Person 1's Netlify Function at /.netlify/functions/ai
 // This file NEVER touches the Gemini API key directly.
 
-const AI_ENDPOINT = "/.netlify/functions/ai-stub";
+const AI_ENDPOINT = "/.netlify/functions/ai";
 
 // ==================================================
 
