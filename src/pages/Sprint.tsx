@@ -15,7 +15,15 @@ const STATUS_COLOR: Record<SprintTask["status"], string> = {
   LATE: "#ef7777",
 };
 
-export default function SprintPage() {
+interface SprintProps {
+  projectId: string;
+  userId: string;
+}
+
+export default function SprintPage({
+  projectId,
+  userId,
+}: SprintProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sprint, setSprint] = useState<SprintPlan | null>(null);
@@ -39,7 +47,7 @@ export default function SprintPage() {
     setApproved(false);
     setShowRegenBox(false);
 
-    const res = await generateSprint("demo-project-id");
+    const res = await generateSprint(projectId);
     setLoading(false);
 
     if (!res.success) {
@@ -61,7 +69,7 @@ export default function SprintPage() {
     setLoading(true);
     setError(null);
 
-    const res = await regenerateSprint("demo-project-id", feedback);
+    const res = await regenerateSprint(projectId, feedback);
     setLoading(false);
 
     if (!res.success) {
@@ -169,7 +177,7 @@ export default function SprintPage() {
           )}
            
         </>
-      )}<SprintChangeSuggestionBox projectId="demo-project-id" userId="demo-user-id" />
+      )}<SprintChangeSuggestionBox projectId={projectId} userId={userId} />
     </main>
   );
 }

@@ -6,7 +6,13 @@ import {
   type RoleAssignment,
 } from "../lib/aiClient";
 
-export default function RoleAssignmentPage() {
+interface RoleAssignmentProps {
+  projectId: string;
+}
+
+export default function RoleAssignmentPage({
+  projectId,
+}: RoleAssignmentProps) {
   const [projectDescription, setProjectDescription] = useState("");
   const [members, setMembers] = useState<ProjectMemberInput[]>([
     { name: "", personalDescription: "", skills: [], learningStyle: "" },
@@ -41,8 +47,7 @@ export default function RoleAssignmentPage() {
     setRoles(null);
     setRawResult(null);
 
-    const res = await generateRoles("demo-project-id", projectDescription, members);
-
+    const res = await generateRoles(projectId, projectDescription, members);
     setLoading(false);
 
     if (!res.success) {
