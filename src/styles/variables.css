@@ -1,0 +1,16 @@
+:root {
+  --ink: #171717;
+  --paper: #f8f0dc;
+  --paper2: #fff8e8;
+  --teal: #148f84;
+  --teal2: #72cfc0;
+  --pink: #ef63b4;
+  --pink2: #f7a7d6;
+  --yellow: #f7dd58;
+  --blue: #4d75d8;
+  --orange: #f39b58;
+  --green: #a9d968;
+  --red: #ef7777;
+  --shadow: 8px 8px 0 var(--ink);
+  --shadow-sm: 5px 5px 0 var(--ink);
+}

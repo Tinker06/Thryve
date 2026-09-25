@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    linear-gradient(rgba(23,23,23,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,23,23,.08) 1px, transparent 1px),
+    var(--teal);
+  background-size: 36px 36px;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+.main {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 30px;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .main { padding: 18px; }
+}

@@ -1,0 +1,11 @@
+@media (max-width: 720px) {
+  .nav { display: none; }
+  .grid, .form-row, .choice-grid { grid-template-columns: 1fr; }
+  .section-head { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 560px) {
+  .topbar { padding: 10px 14px; }
+  .brand h1 { font-size: 22px; }
+  .nav button { flex: 1 1 45%; }
+}

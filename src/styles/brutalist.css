@@ -1,0 +1,103 @@
+.topbar {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 3px solid var(--ink);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 48px; height: 48px;
+  border: 3px solid var(--ink);
+  background: var(--pink);
+  display: grid; place-items: center;
+  font-weight: 1000; font-size: 24px;
+  box-shadow: 4px 4px 0 var(--ink);
+  transform: rotate(-3deg);
+}
+.brand h1 { font-family: Georgia, serif; font-size: 26px; margin: 0; letter-spacing: -1px; }
+.brand small { display: block; font-size: 10px; font-weight: 900; letter-spacing: 2px; }
+
+.nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.nav button, .pill {
+  border: 2px solid var(--ink);
+  background: var(--paper2);
+  padding: 9px 13px;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 var(--ink);
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.nav button.active { background: var(--yellow); }
+
+.btn {
+  border: 3px solid var(--ink);
+  background: var(--yellow);
+  padding: 12px 17px;
+  font-weight: 1000;
+  box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
+  transition: .12s;
+  display: inline-block;
+}
+.btn:hover { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.btn.pink { background: var(--pink); }
+.btn.blue { background: var(--blue); color: #fff; }
+.btn.paper { background: var(--paper); }
+.btn.teal { background: var(--teal2); }
+.btn.red { background: var(--red); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.eyebrow { font-size: 12px; font-weight: 1000; letter-spacing: 3px; text-transform: uppercase; }
+
+.section-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 20px; gap: 15px; flex-wrap: wrap; }
+.section-head h2 { font-family: Georgia, serif; font-size: clamp(34px,4vw,48px); margin: 0; letter-spacing: -2px; line-height: .95; }
+.section-head p { font-weight: 700; max-width: 600px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card, .panel, .form-card, .side, .choice {
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+.card { padding: 20px; position: relative; }
+.card:nth-child(2n) { background: var(--paper2); }
+.card:nth-child(3n) { background: #f6d9ec; }
+.card h3 { font-family: Georgia, serif; font-size: 28px; margin: 5px 0 10px; }
+.tag { display: inline-block; border: 2px solid var(--ink); padding: 5px 8px; background: var(--yellow); font-size: 10px; font-weight: 1000; }
+.tag.pink { background: var(--pink2); }
+.tag.teal { background: var(--teal2); }
+.tag.blue { background: #d6e5ff; }
+.tag.green { background: var(--green); }
+.card .arrow { position: absolute; right: 14px; bottom: 12px; font-size: 25px; }
+
+.form-shell { max-width: 780px; margin: 40px auto; }
+.form-card { padding: 30px; }
+.form-card h2 { font-family: Georgia, serif; font-size: 44px; margin: 0 0 8px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+label { display: block; font-size: 11px; font-weight: 1000; text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 7px; }
+input, textarea, select {
+  width: 100%;
+  border: 3px solid var(--ink);
+  background: #fffdf2;
+  padding: 12px;
+  outline: none;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+textarea { min-height: 100px; resize: vertical; }
+
+.notice { border: 3px solid var(--ink); background: var(--yellow); padding: 12px; box-shadow: var(--shadow-sm); font-weight: 900; margin: 12px 0; }
+.notice.pink { background: var(--pink2); }
+.notice.green { background: #dff0bb; }
+.notice.blue { background: #d6e5ff; }
+.notice.red { background: #ffd1d1; }
+
+.choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+.choice { padding: 20px; cursor: pointer; }
+.choice:hover { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.choice h3 { font-family: Georgia, serif; font-size: 27px; margin: 4px 0 8px; }
