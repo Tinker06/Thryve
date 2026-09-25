@@ -6,7 +6,10 @@ import {
   type SprintPlan,
   type SprintTask,
 } from "../lib/aiClient";
+import { supabase } from "../lib/supabaseClient";
 import SprintChangeSuggestionBox from "../components/SprintChangeSuggestion";
+import BlockTaskModal from "../components/tasks/BlockTaskModal";
+import PlaceholderBuilder from "../components/tasks/PlaceholderBuilder";
 
 const STATUS_COLOR: Record<SprintTask["status"], string> = {
   DONE: "#a9d968",
@@ -14,6 +17,12 @@ const STATUS_COLOR: Record<SprintTask["status"], string> = {
   AT_RISK: "#f7dd58",
   LATE: "#ef7777",
 };
+
+interface DbTask {
+  id: string;
+  title: string;
+  assigneeId: string | null;
+}
 
 export default function SprintPage() {
   const [loading, setLoading] = useState(false);
@@ -23,6 +32,12 @@ export default function SprintPage() {
   const [approved, setApproved] = useState(false);
   const [showRegenBox, setShowRegenBox] = useState(false);
   const [feedback, setFeedback] = useState("");
+
+  // Real DB rows created once the sprint is approved — this is what
+  // MARK BLOCKED and GENERATE PLACEHOLDER buttons actually operate on.
+  const [dbTasks, setDbTasks] = useState<DbTask[]>([]);
+  const [blockingTask, setBlockingTask] = useState<{ id: string; title: string } | null>(null);
+  const [placeholderTaskId, setPlaceholderTaskId] = useState<string | null>(null);
 
   function isRealSprintPlan(data: unknown): data is SprintPlan {
     return (
@@ -80,6 +95,54 @@ export default function SprintPage() {
     setApproved(false);
     setShowRegenBox(false);
     setFeedback("");
+    setDbTasks([]);
+  }
+
+  // NEW: saves the AI-drafted tasks into the real `tasks` table so they
+  // get real IDs. Without this, MARK BLOCKED / PLACEHOLDER had nothing
+  // to attach to — the sprint tasks only ever existed in memory.
+  async function handleApprove() {
+    if (!sprint) return;
+    setApproved(true);
+    setError(null);
+
+    try {
+      const { data: members, error: membersErr } = await supabase
+        .from("project_members")
+        .select("id, name")
+        .eq("project_id", "demo-project-id");
+
+      if (membersErr) throw membersErr;
+
+      const rowsToInsert = sprint.tasks.map((t) => {
+        const match = (members ?? []).find(
+          (m) => m.name.toLowerCase().trim() === t.member.toLowerCase().trim()
+        );
+        return {
+          project_id: "demo-project-id",
+          assignee_id: match ? match.id : null,
+          title: t.title,
+          status: t.status,
+        };
+      });
+
+      const { data: inserted, error: insertErr } = await supabase
+        .from("tasks")
+        .insert(rowsToInsert)
+        .select("id, title, assignee_id");
+
+      if (insertErr) throw insertErr;
+
+      setDbTasks(
+        (inserted ?? []).map((row) => ({
+          id: row.id,
+          title: row.title,
+          assigneeId: row.assignee_id,
+        }))
+      );
+    } catch (err: any) {
+      setError(err.message ?? "Sprint approved, but saving tasks to the database failed.");
+    }
   }
 
   return (
@@ -130,7 +193,7 @@ export default function SprintPage() {
             <div className="notice">
               <b>TEAM LEAD APPROVAL REQUIRED</b>
               <br />
-              <button className="btn teal" style={{ marginTop: 10 }} onClick={() => setApproved(true)}>
+              <button className="btn teal" style={{ marginTop: 10 }} onClick={handleApprove}>
                 APPROVE SPRINT
               </button>{" "}
               <button className="btn paper" style={{ marginTop: 10 }} onClick={() => setShowRegenBox(true)}>
@@ -167,9 +230,53 @@ export default function SprintPage() {
               </button>
             </div>
           )}
-           
+
+          {approved && dbTasks.length > 0 && (
+            <div className="panel" style={{ marginTop: 20 }}>
+              <h3>TASK ACTIONS</h3>
+              {dbTasks.map((t) => (
+                <div key={t.id} style={{ border: "2px solid var(--ink)", padding: 12, marginTop: 10 }}>
+                  <p style={{ fontWeight: 700 }}>{t.title}</p>
+                  <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                    <button
+                      className="btn paper"
+                      onClick={() => setBlockingTask({ id: t.id, title: t.title })}
+                    >
+                      MARK BLOCKED
+                    </button>
+                    <button
+                      className="btn paper"
+                      onClick={() => setPlaceholderTaskId(placeholderTaskId === t.id ? null : t.id)}
+                    >
+                      {placeholderTaskId === t.id ? "HIDE PLACEHOLDER" : "GENERATE PLACEHOLDER"}
+                    </button>
+                  </div>
+
+                  {placeholderTaskId === t.id && (
+                    <PlaceholderBuilder
+                      projectId="demo-project-id"
+                      taskId={t.id}
+                      taskTitle={t.title}
+                      approvedByMemberId={t.assigneeId ?? ""}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </>
-      )}<SprintChangeSuggestionBox projectId="demo-project-id" userId="demo-user-id" />
+      )}
+
+      <SprintChangeSuggestionBox projectId="demo-project-id" userId="demo-user-id" />
+
+      {blockingTask && (
+        <BlockTaskModal
+          taskId={blockingTask.id}
+          taskTitle={blockingTask.title}
+          onClose={() => setBlockingTask(null)}
+          onBlocked={() => setBlockingTask(null)}
+        />
+      )}
     </main>
   );
 }
