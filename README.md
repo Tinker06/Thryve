@@ -1,5 +1,4 @@
 # THRYVE
-
 ## AI-Based Collaborative Learning Intelligence
 
 > **From individual contributions to collective intelligence.**
