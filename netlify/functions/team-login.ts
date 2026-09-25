@@ -43,10 +43,10 @@ export async function handler(event: any) {
     }
 
     // 3. Verify password using Supabase Auth
-    const anon = createClient(
-      process.env.SUPABASE_URL as string,
-      process.env.SUPABASE_SERVICE_ROLE_KEY as string
-    );
+  const anon = createClient(
+    process.env.SUPABASE_URL as string,
+    process.env.SUPABASE_ANON_KEY as string
+  );
 
     const { data: sessionData, error: signInError } =
       await anon.auth.signInWithPassword({
