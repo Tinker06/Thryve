@@ -2,6 +2,8 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import RoleAssignmentPage from "./pages/RoleAssignment";
 import SprintPage from "./pages/Sprint";
+import ChatPage from "./pages/Chat";
+import Analysis from "./pages/Analysis";
 import "./styles/thryve.css";
 
 export default function App() {
@@ -18,11 +20,14 @@ export default function App() {
       >
         <Link className="btn paper" to="/">ROLES</Link>
         <Link className="btn paper" to="/sprint">SPRINT</Link>
+        <Link className="btn paper" to="/chat">CHAT</Link>
         {/* /chat, /analysis, /insights routes get added in later phases */}
       </nav>
       <Routes>
         <Route path="/" element={<RoleAssignmentPage />} />
         <Route path="/sprint" element={<SprintPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/project/:projectId/analysis" element={<Analysis />} />
       </Routes>
     </BrowserRouter>
   );
