@@ -1,210 +1,248 @@
-THRYVE — Reports (Person 4 deliverables)
+# THRYVE — AI-Based Collaborative Learning Intelligence
 
-This covers the code deliverables for Reports/Member Report/PDF export, plus
-exact instructions for the integration, QA and deployment steps that need to
-run against your real repo, Supabase project, and Netlify account (I don't
-have access to any of those, so I can give you the exact commands/clicks but
-can't run them for you — see What I could and couldn't do at the bottom).
+> An AI-powered collaborative learning platform that helps student teams coordinate work, understand participation, identify knowledge gaps, manage tasks, share documents, and generate intelligent team and member reports.
 
-Files delivered
+---
 
-src/pages/Reports.tsx
-src/components/reports/TeamReport.tsx
-src/components/reports/MemberReport.tsx
-src/components/reports/ReportKpis.tsx
-src/components/reports/ReportChecklist.tsx
-src/components/reports/ReportEfficiency.tsx
-src/components/reports/ReportMemberTable.tsx
-src/components/reports/ReportFilters.tsx
-src/lib/reportCalculations.ts   <- status logic + efficiency formula
-src/lib/reportsData.ts          <- Supabase queries (schema assumed, see file)
-src/styles/reports-print.css
-netlify.toml
+## 📌 Project Overview
 
-Visual design is reproduced 1:1 from your prototype's Reports screen
-(.report-hero, .report-tabs, .report-kpis, .report-check,
-.report-efficiency, .report-table, etc.) — same class names, same
-structure, now driven by real data instead of the hardcoded reportData
-object.
+**THRYVE** is an AI-based collaborative learning intelligence platform designed for student project teams.
 
-Before this compiles in your app, point the import { supabase } from
-'./supabaseClient' line in reportsData.ts at wherever Person 1/2 actually
-export the Supabase client, and confirm the tasks/members/sprints
-column names against the real schema — the assumptions are documented at the
-top of that file.
+Students working in groups often face problems such as:
 
-Efficiency formula (documented, not hardcoded)
+- Unequal participation
+- Fragmented discussions
+- Scattered project documents
+- Difficulty tracking individual contributions
+- Poor visibility into what team members are working on
+- Missed deadlines
+- Blocked tasks
+- Knowledge gaps between team members
+- Difficulty combining individual contributions into a clear team report
 
-efficiency = round(100 * (
-    0.40 * completionScore +
-    0.35 * deadlineAdherenceScore +
-    0.25 * timeAccuracyScore
-))
+THRYVE addresses these problems by analyzing **only authorized team data**, including:
 
-completionScore = doneCount / totalTasks
+- Group discussions
+- Shared project documents
+- Tasks and sprint activity
+- Team member contributions
+- Project activity
+- AI-generated insights
 
-deadlineAdherenceScore = onTimeCount / completedCount (0 if nothing
-completed yet — a fresh sprint doesn't start at an inflated score)
+The platform converts this information into actionable collaboration intelligence while keeping the team's project data organized in one workspace.
 
-timeAccuracyScore = average of min(estimated/actual, actual/estimated)
-over completed tasks — symmetric, penalizes both under- and over-estimates
-(0 if nothing completed yet)
+---
 
-The three weights sum to 1, so no separate normalization step is needed
-beyond the * 100 and rounding. Weights live in one place
-(src/lib/reportCalculations.ts) if you want to tune them.
+# 🎯 Problem Statement
 
-Deadline analysis (no AI, straight timestamp comparison)
+Student teams frequently collaborate using multiple disconnected tools such as:
 
-completed_at != null && completed_at <= deadline  -> DONE (before deadline)
-completed_at != null && completed_at >  deadline  -> LATE
-completed_at == null && now > deadline            -> RISK (overdue)
-completed_at == null && now <= deadline           -> PENDING (estimate stays visible)
+- Chat applications
+- Cloud storage
+- Spreadsheets
+- Task management tools
+- Separate documents
+- Manual reports
 
-Git integration
+This creates several problems:
 
-Assuming a standard branch-per-person setup and main as the integration
-branch:
+1. Team members may not know what others are working on.
+2. Individual contributions are difficult to measure.
+3. Important project information becomes scattered.
+4. Deadlines can be missed without early visibility.
+5. Knowledge gaps may remain unnoticed.
+6. Team leaders have difficulty understanding project progress.
+7. Preparing project reports manually takes time.
+8. Unequal participation can be difficult to identify objectively.
 
-git checkout main
-git pull origin main
+THRYVE provides a centralized workspace that combines collaboration, project activity, AI analysis, and reporting.
 
-# Bring in each person's branch one at a time so conflicts are easy to isolate
-git merge origin/person-1-backend
-git merge origin/person-2-frontend
-git merge origin/person-3-ai
+---
 
-# Add this Reports work
-git add src/pages/Reports.tsx src/components/reports src/lib/reportCalculations.ts src/lib/reportsData.ts src/styles/reports-print.css netlify.toml
-git commit -m "feat: reports integration qa and production deployment"
-git push origin main
+# 💡 Proposed Solution
 
-If any merge reports a conflict, resolve it in the affected file(s) before
-continuing to the next merge — don't merge all three branches blind and
-resolve at the end, since that makes it hard to tell whose change caused
-what. Never force-push over teammates' branches.
+THRYVE creates a shared project environment where team members can:
 
-Netlify deployment — exact clicks
+- Create and manage projects
+- Join team workspaces
+- Assign roles
+- Manage sprints
+- Create and update tasks
+- Track task deadlines
+- Share project documents
+- Request and approve documents
+- Communicate through team chat
+- Use AI-powered assistance
+- Identify knowledge gaps
+- Detect blocked tasks
+- Generate collaboration insights
+- Generate team reports
+- Generate individual member reports
+- Print or save reports as PDF
 
-Go to https://app.netlify.com and log in.
+The platform is designed to transform raw collaboration activity into structured project intelligence.
 
-Click Add new site → Import an existing project.
+---
 
-Choose GitHub, authorize if prompted, and select your repo.
+# 🚀 Core Features
 
-Build command: npm run build
+## 1. Team Workspace
 
-Publish directory: dist
+Each project has a dedicated collaborative workspace.
 
-Under Environment variables, add the frontend-safe ones below.
+Team members can access:
 
-Click Deploy site.
+- Project information
+- Team members
+- Tasks
+- Sprints
+- Documents
+- Discussions
+- AI insights
+- Reports
 
-Once live, open the generated Netlify URL and confirm the Reports page
-loads real data — this is your final demo URL, not localhost.
+---
 
-netlify.toml (already created above) mirrors this build/publish config and
-adds an SPA redirect so client-side routes don't 404 on refresh, plus a
-netlify/functions directory declaration if/when Person 3's AI branch adds
-serverless functions.
+## 2. Authentication
 
-Environment variables
+The application supports team-based authentication and project access.
 
-Frontend-safe (fine to expose to the browser bundle):
+Users can:
 
-VITE_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY
+- Sign up
+- Log in
+- Access authorized projects
+- Work within their assigned team
+- Prevent unauthorized access to other projects
 
-Server-only (Netlify Functions environment, never prefix with VITE_):
+---
 
-SUPABASE_SERVICE_ROLE_KEY
-GEMINI_API_KEY
-BREVO_API_KEY
+## 3. Project Management
 
-QA — manual test pass
+Teams can create and manage projects.
 
-Run this end-to-end once deployed to the Netlify URL (not localhost):
+Project information can include:
 
-Home → Team signup → Team login → Team workspace
+- Project name
+- Project description
+- Team members
+- Project tasks
+- Sprints
+- Documents
+- Discussions
+- Reports
 
-Create project → Add member → Team lead approval
+---
 
-Member login → Dashboard
+# 👥 Team Collaboration
 
-AI role assignment → Sprint generation → Sprint approval → Sprint checklist
+THRYVE is designed around team-based collaboration.
 
-Update task → Upload document → Request document → Approve document
+The project workspace can include members such as:
 
-Chat → AI chat → AI insight → Block task → Team notification
+- Priya
+- Arun
+- Meena
+- Vishal
 
-Placeholder generation → Analysis
+Each member can have individual tasks and project responsibilities.
 
-Team report → Member report (each of the 4 members) → Print/Save PDF
+The platform tracks authorized activity to provide a structured view of team participation.
 
-Error cases to check:
+---
 
-Wrong login, missing required field, duplicate email
+# 🤖 AI-Powered Intelligence
 
-Unauthorized document access, member accessing another project
+THRYVE uses AI to analyze authorized project information and provide useful collaboration insights.
 
-AI unavailable, email unavailable
+AI capabilities include:
 
-Empty report (no tasks), a pending task, a late task — confirm the report
-shows the "no tasks yet" / pending / late states gracefully rather than
-crashing (the components here already handle empty task lists)
+### AI Role Assignment
 
-Demo seed data — StudySync
+The platform can analyze available project context and help assign suitable responsibilities to team members.
 
-Team: StudySync, project: StudySync AI, 4 members: Priya, Arun,
-Meena, Vishal. Seed enough tasks per member to show at least one done, one
-late, and one pending/risk task, so all four report states are visible
-in the demo. Insert this through whatever seeding approach Person 1's
-backend branch already uses (a SQL seed script or a Supabase table editor
-pass) rather than a one-off script here, since the actual tasks table
-schema needs to be confirmed first (see the note in reportsData.ts). Keep
-demo rows tagged to a dedicated StudySync project id so they never mix
-with real user data.
+### AI Sprint Generation
 
-Final checklist (fill in once deployed)
+AI can assist in generating sprint tasks based on the project requirements.
 
-Live URL:
+### Knowledge Gap Detection
 
-GitHub URL:
+The system can identify areas where team members may need additional knowledge or support.
 
-Supabase project URL:
+### AI Chat
 
-Environment variables configured: [ ]
+Team members can interact with an AI assistant for project-related support.
 
-Features working:
+### AI Insights
 
-Known limitations:
+The system can convert project activity into useful collaboration insights.
 
-Demo credentials:
+### Placeholder / Generated Content
 
-5-minute presentation flow:
+The platform can generate project-supporting content where required by the workflow.
 
-Home → team login (10s)
+---
 
-Dashboard walkthrough (60s)
+# 📋 Sprint Management
 
-Sprint checklist + marking a task done live (60s)
+THRYVE supports sprint-based project organization.
 
-AI chat / insight moment (45s)
+A sprint can contain:
 
-Team Report → click into a member → Print/Save PDF (60s)
+- Sprint name
+- Sprint period
+- Tasks
+- Assigned members
+- Deadlines
+- Estimated completion time
+- Actual completion time
+- Completion status
 
-Close on the live Netlify URL, not localhost
+Sprint workflows include:
 
-What I could and couldn't do here
+1. Sprint generation
+2. Sprint review
+3. Sprint approval
+4. Checklist creation
+5. Task assignment
+6. Task updates
+7. Sprint progress tracking
 
-Built: the Reports/Member Report React components matching your
-prototype's design, the documented efficiency formula, the no-AI deadline
-logic, the Supabase query layer (schema assumed and flagged), print CSS, and
-exact copy-pasteable commands/config for git, Netlify and env vars.
+---
 
-Couldn't do from here (no access to your repo, Supabase project, or
-Netlify account): actually merging your teammates' branches, running the
-27-step QA pass against a live deployment, seeding real demo data into your
-Supabase project, or clicking through the Netlify deploy myself. Those need
-to be run by whoever has those credentials — the steps above are exact, so
-it should be copy/paste from here.
+# ✅ Task Management
+
+Tasks are central to the collaboration intelligence system.
+
+Each task can contain:
+
+- Task name
+- Assigned member
+- Estimated time
+- Actual completion time
+- Deadline
+- Completion timestamp
+- Sprint
+- Status
+
+Task status can be represented as:
+
+- `DONE`
+- `LATE`
+- `PENDING`
+- `RISK`
+
+---
+
+# ⏱️ Deadline Logic
+
+THRYVE uses the recorded completion timestamp and deadline to determine task timing.
+
+The logic is deterministic and does not rely on AI guessing.
+
+### BEFORE DEADLINE
+
+If:
+
+```text
+completed_at <= deadline
