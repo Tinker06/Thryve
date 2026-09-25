@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { detectKnowledgeGaps, type ChatMessageRow, type KnowledgeGap } from "../lib/knowledgeGap";
 import { computeProjectMetrics, type DocumentRow, type WorkRequestRow } from "../lib/analysisMetrics";
+import CollectiveSummary from "../components/analysis/CollectiveSummary";
 
 interface Member {
   id: string;
@@ -202,7 +203,7 @@ export default function Analysis() {
         </table>
       </div>
 
-      <div className="panel">
+            <div className="panel">
         <h3>KNOWLEDGE GAP</h3>
         {knowledgeGaps.length === 0 ? (
           <p style={{ fontSize: 13, fontWeight: 700 }}>
@@ -229,6 +230,26 @@ export default function Analysis() {
           ))
         )}
       </div>
+
+      <CollectiveSummary
+        projectId={projectId}
+        fallbackLines={[
+          totalTasksLine(metrics),
+          `Knowledge exchange: ${metrics.knowledgeExchangeSignals} messages, ${metrics.helpInteractions} of which were Ask AI.`,
+          knowledgeGaps.length > 0
+            ? `Collaboration risk elevated: ${knowledgeGaps[0].memberName} shows a recurring knowledge gap (${knowledgeGaps[0].occurrences} repeated questions).`
+            : "Collaboration risk is low — no repeated-question patterns detected.",
+          knowledgeGaps.length > 0
+            ? `Recommended next activity: ${knowledgeGaps[0].recommendation}`
+            : "Recommended next activity: continue current sprint cadence.",
+        ]}
+      />
     </div>
   );
+}
+
+function totalTasksLine(metrics: { totalTasks: number; tasksCompleted: number; teamProgress: number }): string {
+  return metrics.totalTasks === 0
+    ? "No tasks recorded yet — team progress cannot be assessed."
+    : `The team has completed ${metrics.tasksCompleted} of ${metrics.totalTasks} tasks (${metrics.teamProgress}% progress).`;
 }
