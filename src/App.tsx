@@ -1,3 +1,4 @@
+import Dashboard from "./pages/Dashboard";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import TeamLogin from "./pages/TeamLogin";
@@ -5,6 +6,9 @@ import TeamSignup from "./pages/TeamSignup";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import Projects from "./pages/Projects";
 import ProjectSetup from "./pages/ProjectSetup";
+import MemberLogin from "./pages/MemberLogin";
+import UserSignup from "./pages/UserSignup";
+import DeleteUser from "./pages/DeleteUser";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -48,6 +52,10 @@ export default function App() {
           <Route path="/team-workspace" element={<TeamWorkspace />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/project-setup" element={<ProjectSetup />} />
+          <Route path="/member-login" element={<MemberLogin />} />
+          <Route path="/user-signup" element={<UserSignup />} />
+          <Route path="/delete-user" element={<DeleteUser />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
     </div>
