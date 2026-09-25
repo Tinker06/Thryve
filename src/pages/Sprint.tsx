@@ -6,6 +6,7 @@ import {
   type SprintPlan,
   type SprintTask,
 } from "../lib/aiClient";
+import SprintChangeSuggestionBox from "../components/SprintChangeSuggestion";
 
 const STATUS_COLOR: Record<SprintTask["status"], string> = {
   DONE: "#a9d968",
@@ -166,8 +167,9 @@ export default function SprintPage() {
               </button>
             </div>
           )}
+           
         </>
-      )}
+      )}<SprintChangeSuggestionBox projectId="demo-project-id" userId="demo-user-id" />
     </main>
   );
 }
