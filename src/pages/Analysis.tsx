@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { detectKnowledgeGaps, type ChatMessageRow, type KnowledgeGap } from "../lib/knowledgeGap";
+import { computeProjectMetrics, type DocumentRow, type WorkRequestRow } from "../lib/analysisMetrics";
 
 interface Member {
   id: string;
@@ -13,7 +14,7 @@ interface Member {
 interface Task {
   id: string;
   assignee_id: string;
-  status: "DONE" | "PENDING" | "AT_RISK" | "LATE";
+  status: "DONE" | "PENDING" | "AT_RISK" | "LATE" | "BLOCKED";
   deadline: string | null;
   completed_at: string | null;
 }
@@ -36,8 +37,8 @@ export default function Analysis() {
 
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [docsSharedCount, setDocsSharedCount] = useState(0);
-  const [helpRequestsCount, setHelpRequestsCount] = useState(0);
+  const [documents, setDocuments] = useState<DocumentRow[]>([]);
+  const [workRequests, setWorkRequests] = useState<WorkRequestRow[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessageRow[]>([]);
 
   useEffect(() => {
@@ -51,8 +52,8 @@ export default function Analysis() {
         const [membersRes, tasksRes, docsRes, workReqRes, chatRes] = await Promise.all([
           supabase.from("project_members").select("id, name, ai_role").eq("project_id", projectId),
           supabase.from("tasks").select("id, assignee_id, status, deadline, completed_at").eq("project_id", projectId),
-          supabase.from("documents").select("id", { count: "exact", head: true }).eq("project_id", projectId).eq("approved", true),
-          supabase.from("work_requests").select("id", { count: "exact", head: true }).eq("project_id", projectId),
+          supabase.from("documents").select("uploaded_by").eq("project_id", projectId).eq("approved", true),
+          supabase.from("work_requests").select("requested_by").eq("project_id", projectId),
           supabase.from("chat_messages").select("sender_id, mode, content, created_at").eq("project_id", projectId),
         ]);
 
@@ -64,8 +65,8 @@ export default function Analysis() {
 
         setMembers(membersRes.data ?? []);
         setTasks((tasksRes.data ?? []) as Task[]);
-        setDocsSharedCount(docsRes.count ?? 0);
-        setHelpRequestsCount(workReqRes.count ?? 0);
+        setDocuments((docsRes.data ?? []) as DocumentRow[]);
+        setWorkRequests((workReqRes.data ?? []) as WorkRequestRow[]);
         setChatMessages((chatRes.data ?? []) as ChatMessageRow[]);
       } catch (err: any) {
         setError(err.message ?? "Failed to load analysis data.");
@@ -77,9 +78,7 @@ export default function Analysis() {
     loadAnalysis();
   }, [projectId]);
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.status === "DONE").length;
-  const teamProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const metrics = computeProjectMetrics(members, tasks, documents, workRequests, chatMessages);
 
   const messageCounts: Record<string, number> = {};
   chatMessages.forEach((m) => {
@@ -92,7 +91,8 @@ export default function Analysis() {
     const memberProgress = memberTasks.length > 0 ? Math.round((memberCompleted / memberTasks.length) * 100) : 0;
 
     let status = "ON TRACK";
-    if (memberTasks.some((t) => t.status === "LATE")) status = "LATE";
+    if (memberTasks.some((t) => t.status === "BLOCKED")) status = "BLOCKED";
+    else if (memberTasks.some((t) => t.status === "LATE")) status = "LATE";
     else if (memberTasks.some((t) => t.status === "AT_RISK")) status = "AT RISK";
     else if (memberTasks.length > 0 && memberCompleted === memberTasks.length) status = "DONE";
 
@@ -129,19 +129,35 @@ export default function Analysis() {
       <div className="metric-grid">
         <div className="metric">
           <span>TEAM PROGRESS</span>
-          <strong>{teamProgress}%</strong>
+          <strong>{metrics.teamProgress}%</strong>
         </div>
         <div className="metric">
           <span>KNOWLEDGE EXCHANGE</span>
-          <strong>{chatMessages.length} msgs</strong>
+          <strong>{metrics.knowledgeExchangeSignals} msgs</strong>
         </div>
         <div className="metric">
           <span>DOCS SHARED</span>
-          <strong>{docsSharedCount}</strong>
+          <strong>{metrics.documentsShared}</strong>
         </div>
         <div className="metric">
-          <span>HELP REQUESTS</span>
-          <strong>{helpRequestsCount}</strong>
+          <span>WORK REQUESTS</span>
+          <strong>{metrics.workRequests}</strong>
+        </div>
+        <div className="metric">
+          <span>HELP INTERACTIONS (ASK AI)</span>
+          <strong>{metrics.helpInteractions}</strong>
+        </div>
+        <div className="metric">
+          <span>DEADLINE ADHERENCE</span>
+          <strong>{metrics.deadlineAdherence}%</strong>
+        </div>
+        <div className="metric">
+          <span>TASKS BLOCKED</span>
+          <strong>{metrics.tasksBlocked}</strong>
+        </div>
+        <div className="metric">
+          <span>TASKS LATE</span>
+          <strong>{metrics.tasksLate}</strong>
         </div>
       </div>
 
@@ -170,7 +186,11 @@ export default function Analysis() {
                   <span
                     className={
                       "chip " +
-                      (row.status === "DONE" ? "green" : row.status === "LATE" ? "pink" : "blue")
+                      (row.status === "DONE"
+                        ? "green"
+                        : row.status === "LATE" || row.status === "BLOCKED"
+                        ? "pink"
+                        : "blue")
                     }
                   >
                     {row.status}
