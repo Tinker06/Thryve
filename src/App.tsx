@@ -1,3 +1,4 @@
+import Home from "./pages/Home";
 import TeamSignup from "./pages/TeamSignup";
 import TeamLogin from "./pages/TeamLogin";
 import MemberLogin from "./pages/MemberLogin";
@@ -13,7 +14,6 @@ import {
 import RoleAssignmentPage from './pages/RoleAssignment';
 import SprintPage from './pages/Sprint';
 import Reports from './pages/reports';
-import Login from './pages/Login';
 import Projects from './pages/Projects';
 
 import { getCurrentProfile, logout } from './lib/auth';
@@ -49,7 +49,7 @@ if (!profile) {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login onLogin={refreshProfile} />} />
+        <Route path="/" element={<Home />} />
         <Route
           path="/team-signup"
           element={<TeamSignup />}
