@@ -1,0 +1,18 @@
+@media (max-width: 720px) {
+  .nav { display: none; }
+  .grid, .form-row, .choice-grid { grid-template-columns: 1fr; }
+  .section-head { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 560px) {
+  .topbar { padding: 10px 14px; }
+  .brand h1 { font-size: 22px; }
+  .nav button { flex: 1 1 45%; }
+}
+
+@media (max-width: 900px) {
+  .insights { grid-template-columns: 1fr; }
+  .chatinput { flex-direction: column; }
+  .file-row { align-items: flex-start; flex-direction: column; }
+  .file-row .btn { width: 100%; }
+}

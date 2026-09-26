@@ -48,3 +48,40 @@ export interface Notification {
   read: boolean;
   created_at: string;
 }
+export type DashboardTaskStatus =
+  | 'DONE'
+  | 'IN_PROGRESS'
+  | 'BLOCKED'
+  | 'LATE'
+  | 'PENDING';
+
+export interface DashboardTask {
+  id: string;
+  title: string;
+  timeRange: string;
+  status: DashboardTaskStatus;
+}
+
+export interface ProjectFile {
+  id: string;
+  name: string;
+  icon: string;
+  visibility: 'PRIVATE' | 'SHARED';
+}
+
+export type ChatMode = 'all' | 'ai' | 'team';
+
+export interface ChatMessageData {
+  id: string;
+  author: string;
+  body: string;
+  kind: 'ai' | 'me' | 'team';
+}
+
+export interface DeadlineChecklistItem {
+  id: string;
+  title: string;
+  meta: string;
+  done: boolean;
+  late: boolean;
+}
