@@ -1,4 +1,3 @@
-import Dashboard from "./pages/Dashboard";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import TeamLogin from "./pages/TeamLogin";
@@ -9,11 +8,17 @@ import ProjectSetup from "./pages/ProjectSetup";
 import MemberLogin from "./pages/MemberLogin";
 import UserSignup from "./pages/UserSignup";
 import DeleteUser from "./pages/DeleteUser";
+import Dashboard from "./pages/Dashboard";
+import Documents from "./pages/Documents";
+import Requests from "./pages/Requests";
+import Profile from "./pages/Profile";
+import TeammateStub from "./pages/_TeammateStub";
 
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/team-login", label: "Team Login" },
   { to: "/team-workspace", label: "Workspace" },
+  { to: "/dashboard", label: "Dashboard" },
 ];
 
 function Topbar() {
@@ -56,6 +61,18 @@ export default function App() {
           <Route path="/user-signup" element={<UserSignup />} />
           <Route path="/delete-user" element={<DeleteUser />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/documents" element={<Documents />} />
+          <Route path="/requests" element={<Requests />} />
+          <Route path="/profile" element={<Profile />} />
+
+          {/* Owned by Person 3 — stubs until their branch merges */}
+          <Route path="/sprint" element={<TeammateStub title="Sprint 01" owner="Person 3" />} />
+          <Route path="/sprint-checklist" element={<TeammateStub title="Sprint Checklist" owner="Person 3" />} />
+          <Route path="/analysis" element={<TeammateStub title="Analysis" owner="Person 3" />} />
+          <Route path="/insights" element={<TeammateStub title="AI Insights" owner="Person 3" />} />
+
+          {/* Owned by Person 4 */}
+          <Route path="/reports" element={<TeammateStub title="Team Report" owner="Person 4" />} />
         </Routes>
       </main>
     </div>

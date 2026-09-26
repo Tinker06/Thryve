@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import type { ProjectFile } from "../../lib/types";
-
+import { getFileUrl } from "../../lib/functionsClient";
+import { useCurrentUser } from "../../lib/useCurrentUser";
+import type { ProjectFile } from "../../lib/uiTypes";
 interface DocumentsPanelProps {
   onNotify: (message: string) => void;
 }
@@ -11,6 +12,7 @@ const initialFiles: ProjectFile[] = [
 ];
 
 export default function DocumentsPanel({ onNotify }: DocumentsPanelProps) {
+  const { profile } = useCurrentUser();
   const [files, setFiles] = useState<ProjectFile[]>(initialFiles);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -29,9 +31,23 @@ export default function DocumentsPanel({ onNotify }: DocumentsPanelProps) {
     onNotify(`${kind === "folder" ? "Folder" : "Files"} uploaded to your workspace ✓`);
   }
 
-  function requestShare(fileName: string) {
-    // TODO: call Person 1's requestDocumentShare(fileId)
+   function requestShare(fileName: string) {
+    // TODO: no requestDocumentShare endpoint exists yet in Person 1's
+    // netlify/functions — this stays local-only until one is added.
     onNotify(`Share request sent for ${fileName} ✓`);
+  }
+
+  async function viewFile(fileId: string, fileName: string) {
+    if (!profile) {
+      onNotify("Log in to view files.");
+      return;
+    }
+    try {
+      const result = await getFileUrl({ documentId: fileId, userId: profile.id });
+      window.open(result.url, "_blank", "noopener,noreferrer");
+    } catch (err: any) {
+      onNotify(err?.message ?? `Could not open ${fileName}.`);
+    }
   }
 
   return (
@@ -75,10 +91,9 @@ export default function DocumentsPanel({ onNotify }: DocumentsPanelProps) {
         {files.map((file) => (
           <div key={file.id} className="file-row">
             <span>{file.icon} {file.name} <span className="chip">{file.visibility}</span></span>
-            <span>
-              <button className="btn paper" onClick={() => requestShare(file.name)}>
-                REQUEST SHARE
-              </button>
+              <span>
+              <button className="btn teal" onClick={() => viewFile(file.id, file.name)}>VIEW</button>{" "}
+              <button className="btn paper" onClick={() => requestShare(file.name)}>REQUEST SHARE</button>
             </span>
           </div>
         ))}

@@ -1,4 +1,4 @@
-import type { DashboardTask } from "../../lib/types";
+import type { DashboardTask } from "../../lib/uiTypes";
 
 interface SprintUpdatePanelProps {
   tasks: DashboardTask[];

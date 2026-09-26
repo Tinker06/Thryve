@@ -1,16 +1,23 @@
 import { useRef, useState } from "react";
-import type { ChatMessageData, ChatMode } from "../../lib/types";
+import { askAI } from "../../lib/aiClient";
+import type { ChatMessageData, ChatMode } from "../../lib/uiTypes";
+
+interface ChatWidgetProps {
+  userId: string | null;
+  projectId: string;
+  myDisplayName: string;
+}
 
 const initialMessages: ChatMessageData[] = [
   { id: "m1", author: "Thryve", body: "I noticed Meena and Arun are discussing the same API topic. I can suggest a peer-learning activity.", kind: "ai" },
   { id: "m2", author: "Arun", body: "I can explain the frontend → API contract.", kind: "team" },
-  { id: "m3", author: "Priya", body: "Yes, schedule 15 minutes before the next sprint.", kind: "me" },
 ];
 
-export default function ChatWidget() {
+export default function ChatWidget({ userId, projectId, myDisplayName }: ChatWidgetProps) {
   const [mode, setMode] = useState<ChatMode>("all");
   const [messages, setMessages] = useState<ChatMessageData[]>(initialMessages);
   const [draft, setDraft] = useState("");
+  const [aiThinking, setAiThinking] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   function scrollToBottom() {
@@ -20,25 +27,42 @@ export default function ChatWidget() {
   }
 
   async function sendMessage() {
-    if (!draft.trim()) return;
-    const mine: ChatMessageData = { id: crypto.randomUUID(), author: "Priya", body: draft, kind: "me" };
+    if (!draft.trim() || aiThinking) return;
+    const messageText = draft;
+    const mine: ChatMessageData = { id: crypto.randomUUID(), author: myDisplayName, body: messageText, kind: "me" };
     setMessages((prev) => [...prev, mine]);
     setDraft("");
     scrollToBottom();
 
-    // TODO: replace with Person 3's askAI() when mode === "ai", or
-    // Person 1's Supabase Realtime send when mode === "team"/"all"
-    if (mode !== "team") {
-      setTimeout(() => {
-        const aiReply: ChatMessageData = {
-          id: crypto.randomUUID(),
-          author: "Thryve",
-          body: "I'll analyze this against authorized project chat, tasks and shared documents. I can draft a collaboration suggestion without changing your sprint automatically.",
-          kind: "ai",
-        };
-        setMessages((prev) => [...prev, aiReply]);
-        scrollToBottom();
-      }, 450);
+    if (mode === "team") {
+      // TODO: send to Person 1's chat_messages table via Supabase Realtime.
+      // Plain CRUD — goes straight to Supabase, never through aiClient.
+      return;
+    }
+
+    if (!userId) {
+      setMessages((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), author: "Thryve", body: "Log in to ask AI.", kind: "ai" },
+      ]);
+      return;
+    }
+
+    setAiThinking(true);
+    try {
+      const result = await askAI({ projectId, userId, message: messageText });
+
+      const replyBody = result.success && result.data
+        ? result.data.reply
+        : result.error ?? "AI temporarily unavailable.";
+
+      setMessages((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), author: "Thryve", body: replyBody, kind: "ai" },
+      ]);
+    } finally {
+      setAiThinking(false);
+      scrollToBottom();
     }
   }
 
@@ -57,6 +81,7 @@ export default function ChatWidget() {
             {m.kind === "ai" && "✦ "}<b>{m.author}:</b> {m.body}
           </div>
         ))}
+        {aiThinking && <div className="msg ai">✦ <b>Thryve:</b> thinking…</div>}
       </div>
 
       <div className="chatinput">
@@ -65,8 +90,9 @@ export default function ChatWidget() {
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }}
           placeholder="Message your team or ask AI..."
+          disabled={aiThinking}
         />
-        <button className="btn" onClick={sendMessage}>SEND</button>
+        <button className="btn" onClick={sendMessage} disabled={aiThinking}>SEND</button>
       </div>
 
       <div className="notice blue">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { memberLogin } from "../lib/auth";
 
 export default function MemberLogin() {
   const navigate = useNavigate();
@@ -17,12 +18,10 @@ export default function MemberLogin() {
     }
     setSubmitting(true);
     try {
-      // TODO: replace with Person 1's real auth call, e.g.
-      // await signInMember(email, password);
-      await new Promise((r) => setTimeout(r, 500));
+      await memberLogin(email, password);
       navigate("/dashboard");
-    } catch {
-      setError("Login failed. Check your email and password.");
+    } catch (err: any) {
+      setError(err?.message ?? "Login failed. Check your email and password.");
     } finally {
       setSubmitting(false);
     }

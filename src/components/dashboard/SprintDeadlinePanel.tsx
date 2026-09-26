@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { DeadlineChecklistItem } from "../../lib/types";
+import type { DeadlineChecklistItem } from "../../lib/uiTypes";
 
 interface SprintDeadlinePanelProps {
   items: DeadlineChecklistItem[];

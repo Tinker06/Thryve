@@ -2,37 +2,41 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ui/useToast";
 import Toast from "../components/ui/Toast";
+import { requestDeleteUser } from "../lib/functionsClient";
+import { useCurrentUser } from "../lib/useCurrentUser";
 
 export default function DeleteUser() {
   const navigate = useNavigate();
+  const { profile } = useCurrentUser();
   const { toastMessage, showToast } = useToast();
   const [nameConfirm, setNameConfirm] = useState("");
   const [emailConfirm, setEmailConfirm] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const expectedName = "Vishal";
-  const expectedEmail = "vishal@team.demo";
-
   async function handleRequest(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (
-      nameConfirm.trim().toLowerCase() !== expectedName.toLowerCase() ||
-      emailConfirm.trim().toLowerCase() !== expectedEmail.toLowerCase()
-    ) {
-      setError("Name and email must exactly match the account you're requesting to delete.");
+    if (!nameConfirm.trim() || !emailConfirm.trim()) {
+      setError("Both fields are required.");
+      return;
+    }
+    if (!profile) {
+      setError("You must be logged in to request a deletion.");
       return;
     }
     setSubmitting(true);
     try {
-      // TODO: replace with Person 1's real call, e.g.
-      // await requestDeleteUser({ name: nameConfirm, email: emailConfirm });
-      await new Promise((r) => setTimeout(r, 500));
+      await requestDeleteUser({
+        teamId: profile.team_id,
+        requestedByUserId: profile.id,
+        targetUserName: nameConfirm.trim(),
+        targetUserEmail: emailConfirm.trim(),
+      });
       showToast("Delete request sent to team lead ✓");
       setTimeout(() => navigate("/member-login"), 900);
-    } catch {
-      setError("Could not submit the delete request. Please try again.");
+    } catch (err: any) {
+      setError(err?.message ?? "Could not submit the delete request.");
     } finally {
       setSubmitting(false);
     }

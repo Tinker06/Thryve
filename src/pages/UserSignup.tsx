@@ -2,9 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ui/useToast";
 import Toast from "../components/ui/Toast";
+import { addMember } from "../lib/functionsClient";
+import { useCurrentUser } from "../lib/useCurrentUser";
 
 export default function UserSignup() {
   const navigate = useNavigate();
+  const { profile } = useCurrentUser();
   const { toastMessage, showToast } = useToast();
   const [form, setForm] = useState({
     email: "",
@@ -27,15 +30,25 @@ export default function UserSignup() {
       setError("Email and full name are required.");
       return;
     }
+    if (!profile) {
+      setError("You must be logged in as a team lead to add a member.");
+      return;
+    }
     setSubmitting(true);
     try {
-      // TODO: replace with Person 1's real call, e.g.
-      // await inviteMember(form);
-      await new Promise((r) => setTimeout(r, 500));
+      await addMember({
+        teamId: profile.team_id,
+        requestedByUserId: profile.id,
+        email: form.email,
+        fullName: form.fullName,
+        personalDescription: form.description,
+        skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean),
+        learningStyle: form.learningStyle,
+      });
       showToast("Random password emailed + team lead notified ✓");
       setTimeout(() => navigate("/member-login"), 900);
-    } catch {
-      setError("Could not send invite. Please try again.");
+    } catch (err: any) {
+      setError(err?.message ?? "Could not send invite. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -61,7 +74,7 @@ export default function UserSignup() {
           placeholder="Interested in Python, machine learning and data analysis..."
         />
 
-        <label>Optional skills</label>
+        <label>Optional skills (comma-separated)</label>
         <input value={form.skills} onChange={(e) => update("skills", e.target.value)} placeholder="Python, ML, SQL, Data Analysis" />
 
         <label>Preferred learning style (optional)</label>

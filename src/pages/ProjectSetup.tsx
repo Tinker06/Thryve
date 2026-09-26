@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { ProjectMember } from "../lib/types";
+import type { ProjectMember } from "../lib/uiTypes";
 
 const blankMember = (): ProjectMember => ({
   id: crypto.randomUUID(),

@@ -13,7 +13,12 @@ import TeamGlancePanel from "../components/dashboard/TeamGlancePanel";
 import AlertsPanel from "../components/dashboard/AlertsPanel";
 import { useToast } from "../components/ui/useToast";
 import Toast from "../components/ui/Toast";
-import type { DashboardTask, DeadlineChecklistItem } from "../lib/types";
+import { useCurrentUser } from "../lib/useCurrentUser";
+import type { DashboardTask, DeadlineChecklistItem } from "../lib/uiTypes";
+
+// TODO: replace once there's a real "current project" concept
+// (a project-select screen result, a route param, or a projects table query)
+const CURRENT_PROJECT_ID = "REPLACE_WITH_REAL_PROJECT_ID";
 
 const demoTasks: DashboardTask[] = [
   { id: "t1", title: "Build auth API", timeRange: "09:00–11:00 • completed", status: "DONE" },
@@ -29,17 +34,27 @@ const demoChecklist: DeadlineChecklistItem[] = [
 ];
 
 export default function Dashboard() {
+  const { profile, loading: profileLoading } = useCurrentUser();
   const [tasks] = useState<DashboardTask[]>(demoTasks);
   const [checklist] = useState<DeadlineChecklistItem[]>(demoChecklist);
   const [placeholderModalOpen, setPlaceholderModalOpen] = useState(false);
   const { toastMessage, showToast } = useToast();
 
+  const blockedTaskId = tasks.find((t) => t.status === "BLOCKED")?.id ?? null;
+  const displayName = profile?.full_name ?? (profileLoading ? "…" : "Guest");
+  const displayRole = profile?.role === "team_lead" ? "TEAM LEAD" : "MEMBER";
+
   return (
     <div className="dashboard">
-      <Sidebar memberName="Priya" memberRole="TEAM LEAD" projectName="StudySync" />
+      <Sidebar memberName={displayName} memberRole={displayRole} projectName="StudySync" />
 
       <div className="dash-main">
-        <WelcomePanel memberFirstName="Priya" teamProgress={72} myProgress={84} openTasks={3} />
+        <WelcomePanel
+          memberFirstName={profile?.full_name?.split(" ")[0] ?? "there"}
+          teamProgress={72}
+          myProgress={84}
+          openTasks={3}
+        />
 
         <SprintUpdatePanel
           tasks={tasks}
@@ -47,29 +62,34 @@ export default function Dashboard() {
           onRequestHelp={() => showToast("Team notified: you requested help ✓")}
         />
 
-        <SprintDeadlinePanel
-          items={checklist}
-          completedCount={8}
-          totalCount={12}
-        />
+        <SprintDeadlinePanel items={checklist} completedCount={8} totalCount={12} />
 
         <DocumentsPanel onNotify={showToast} />
 
         <RequestWorkPanel onNotify={showToast} />
 
-        <AiPlaceholderPanel onOpenModal={() => setPlaceholderModalOpen(true)} />
+        <AiPlaceholderPanel
+          disabled={!blockedTaskId}
+          onOpenModal={() => setPlaceholderModalOpen(true)}
+        />
 
-        <ChatWidget />
+        <ChatWidget
+          userId={profile?.id ?? null}
+          projectId={CURRENT_PROJECT_ID}
+          myDisplayName={profile?.full_name ?? "You"}
+        />
       </div>
 
       <aside className="dash-rail">
         <AiRecommendationPanel onPropose={() => showToast("Activity proposed to team ✓")} />
         <TeamGlancePanel />
-        <AlertsPanel />
+        <AlertsPanel userId={profile?.id ?? null} />
       </aside>
 
       <AiPlaceholderModal
         open={placeholderModalOpen}
+        projectId={CURRENT_PROJECT_ID}
+        taskId={blockedTaskId}
         onClose={() => setPlaceholderModalOpen(false)}
         onApprove={() => showToast("Placeholder approved and added to your workspace ✓")}
       />

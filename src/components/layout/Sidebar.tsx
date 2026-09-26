@@ -1,4 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { logout } from "../../lib/auth";
 
 const sidebarLinks = [
   { to: "/dashboard", label: "▣ Overview" },
@@ -21,11 +22,17 @@ interface SidebarProps {
 
 export default function Sidebar({ memberName, memberRole, projectName }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout();
+    navigate("/team-login");
+  }
 
   return (
     <aside className="side">
       <div className="profile">
-        <div className="avatar">{memberName.charAt(0)}</div>
+        <div className="avatar">{memberName.charAt(0).toUpperCase()}</div>
         <div>
           <b>{memberName}</b>
           <small style={{ display: "block" }}>{memberRole}</small>
@@ -39,6 +46,7 @@ export default function Sidebar({ memberName, memberRole, projectName }: Sidebar
           </button>
         </Link>
       ))}
+      <button onClick={handleLogout} style={{ marginTop: 14 }}>⎋ Log out</button>
     </aside>
   );
 }
