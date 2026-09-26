@@ -1,17 +1,12 @@
-import { getAdminClient, jsonResponse } from './_supabaseAdmin';
+import { getAdminClient, jsonResponse, randomTempPassword } from './_supabaseAdmin.js';
 
 export async function handler(event: any) {
   if (event.httpMethod !== 'POST') {
-    return jsonResponse(405, {
-      error: 'Method not allowed',
-    });
+    return jsonResponse(405, { error: 'Method not allowed' });
   }
 
   try {
-    const {
-      teamEmail,
-      teamCode,
-    } = JSON.parse(event.body || '{}');
+    const { teamEmail, teamCode } = JSON.parse(event.body || '{}');
 
     if (!teamEmail || !teamCode) {
       return jsonResponse(400, {
@@ -36,7 +31,7 @@ export async function handler(event: any) {
 
     if (!team.team_lead_user_id) {
       return jsonResponse(400, {
-        error: 'This team does not have a team lead yet',
+        error: 'Team lead is not configured',
       });
     }
 
@@ -67,7 +62,7 @@ export async function handler(event: any) {
       teamLeadEmail: leadProfile.email,
     });
   } catch (err: any) {
-    console.error('[team-login] error:', err);
+    console.error('[team-login]', err);
 
     return jsonResponse(500, {
       error: err.message || 'Server error',
