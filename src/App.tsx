@@ -1,3 +1,6 @@
+import TeamSignup from "./pages/TeamSignup";
+import TeamLogin from "./pages/TeamLogin";
+import MemberLogin from "./pages/MemberLogin";
 import { useEffect, useState } from 'react';
 import {
   BrowserRouter,
@@ -42,14 +45,31 @@ export default function App() {
   if (loading) {
     return <main className="main">Loading THRYVE...</main>;
   }
-
-  if (!profile) {
-    return (
-      <BrowserRouter>
-        <Login onLogin={refreshProfile} />
-      </BrowserRouter>
-    );
-  }
+if (!profile) {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login onLogin={refreshProfile} />} />
+        <Route
+          path="/team-signup"
+          element={<TeamSignup />}
+        />
+        <Route
+          path="/team-login"
+          element={<TeamLogin onLogin={refreshProfile} />}
+        />
+        <Route
+          path="/member-login"
+          element={<MemberLogin onLogin={refreshProfile} />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
   if (!project) {
     return (
