@@ -1,5 +1,4 @@
 // src/pages/Insights.tsx
-import CollaborationRecommendations from "../components/insights/CollaborationRecommendations";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";

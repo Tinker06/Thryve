@@ -1,5 +1,4 @@
 // src/components/chat/ChatModeTabs.tsx
-import React from "react";
 
 export type ChatMode = "team_ai" | "ask_ai" | "team_only";
 

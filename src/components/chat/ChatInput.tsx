@@ -1,6 +1,5 @@
 // src/components/chat/ChatInput.tsx
 import { useState } from "react";
-
 interface Props {
   onSend: (text: string) => void;
   disabled?: boolean;
