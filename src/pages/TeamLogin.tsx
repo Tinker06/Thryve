@@ -15,10 +15,12 @@ export default function TeamLogin({ onLogin }: TeamLoginProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     setError("");
     setSubmitting(true);
 
     try {
+      // 1. Verify team email + team code with our backend.
       const response = await fetch("/.netlify/functions/team-login", {
         method: "POST",
         headers: {
@@ -27,28 +29,35 @@ export default function TeamLogin({ onLogin }: TeamLoginProps) {
         body: JSON.stringify({
           teamEmail: teamEmail.trim(),
           teamCode: teamCode.trim(),
-          password,
         }),
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Login failed.");
+        throw new Error(result.error || "Invalid team credentials.");
       }
 
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: result.accessToken,
-        refresh_token: result.refreshToken,
-      });
+      // 2. Authenticate the actual team-lead Auth account
+      // directly through Supabase Auth.
+      const { error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: result.teamLeadEmail,
+          password,
+        });
 
-      if (sessionError) {
-        throw sessionError;
+      if (authError) {
+        throw new Error(authError.message);
       }
 
+      // 3. Let App.tsx load the authenticated profile.
       await onLogin();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Login failed."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -58,7 +67,12 @@ export default function TeamLogin({ onLogin }: TeamLoginProps) {
     <div className="form-shell">
       <form className="form-card" onSubmit={handleSubmit}>
         <div className="eyebrow">TEAM WORKSPACE / 00</div>
+
         <h2>WELCOME, TEAM.</h2>
+
+        <p>
+          Enter your team email, team code and team lead password.
+        </p>
 
         <label>Team email</label>
         <input
@@ -73,7 +87,7 @@ export default function TeamLogin({ onLogin }: TeamLoginProps) {
         <input
           value={teamCode}
           onChange={(e) => setTeamCode(e.target.value)}
-          placeholder="THRYVE-1234"
+          placeholder="THRYVE-8238"
           required
         />
 
@@ -85,14 +99,26 @@ export default function TeamLogin({ onLogin }: TeamLoginProps) {
           required
         />
 
-        {error && <div className="notice red">{error}</div>}
+        {error && (
+          <div className="notice red">
+            {error}
+          </div>
+        )}
 
-        <button className="btn" type="submit" disabled={submitting}>
+        <button
+          className="btn"
+          type="submit"
+          disabled={submitting}
+        >
           {submitting ? "LOGGING IN..." : "LOGIN TO TEAM →"}
-        </button>{" "}
+        </button>
 
         <Link to="/team-signup">
-          <button className="btn pink" type="button">
+          <button
+            className="btn pink"
+            type="button"
+            style={{ marginTop: 10 }}
+          >
             NEW TEAM SIGNUP +
           </button>
         </Link>

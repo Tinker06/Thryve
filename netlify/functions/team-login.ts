@@ -1,72 +1,74 @@
 import { getAdminClient, jsonResponse } from './_supabaseAdmin';
-import { createClient } from '@supabase/supabase-js';
 
 export async function handler(event: any) {
   if (event.httpMethod !== 'POST') {
-    return jsonResponse(405, { error: 'Method not allowed' });
+    return jsonResponse(405, {
+      error: 'Method not allowed',
+    });
   }
 
   try {
-    const { teamEmail, teamCode, password } = JSON.parse(event.body || '{}');
+    const {
+      teamEmail,
+      teamCode,
+    } = JSON.parse(event.body || '{}');
 
-    if (!teamEmail || !teamCode || !password) {
-      return jsonResponse(400, { error: 'Missing fields' });
+    if (!teamEmail || !teamCode) {
+      return jsonResponse(400, {
+        error: 'Team email and team code are required',
+      });
     }
 
     const admin = getAdminClient();
 
-    // 1. Verify team email + team code
     const { data: team, error: teamError } = await admin
       .from('teams')
       .select('id, team_code, team_email, team_lead_user_id')
-      .eq('team_code', teamCode)
-      .eq('team_email', teamEmail)
+      .eq('team_code', teamCode.trim())
+      .eq('team_email', teamEmail.trim())
       .single();
 
     if (teamError || !team) {
       return jsonResponse(401, {
-        error: 'Invalid team credentials',
+        error: 'Invalid team email or team code',
       });
     }
 
-    // 2. Get team lead profile
+    if (!team.team_lead_user_id) {
+      return jsonResponse(400, {
+        error: 'This team does not have a team lead yet',
+      });
+    }
+
     const { data: leadProfile, error: profileError } = await admin
       .from('profiles')
-      .select('email')
+      .select('id, email, role, status')
       .eq('id', team.team_lead_user_id)
       .single();
 
     if (profileError || !leadProfile) {
       return jsonResponse(401, {
-        error: 'Invalid team credentials',
+        error: 'Team lead profile not found',
       });
     }
 
-    // 3. Verify password using Supabase Auth
-    const anon = createClient(
-      process.env.SUPABASE_URL as string,
-      process.env.SUPABASE_SERVICE_ROLE_KEY as string
-    );
-
-    const { data: sessionData, error: signInError } =
-      await anon.auth.signInWithPassword({
-        email: leadProfile.email,
-        password,
-      });
-
-    if (signInError || !sessionData.session) {
-      return jsonResponse(401, {
-        error: 'Invalid password',
+    if (
+      leadProfile.role !== 'team_lead' ||
+      leadProfile.status !== 'active'
+    ) {
+      return jsonResponse(403, {
+        error: 'Team lead account is not active',
       });
     }
 
     return jsonResponse(200, {
       success: true,
       teamId: team.id,
-      accessToken: sessionData.session.access_token,
-      refreshToken: sessionData.session.refresh_token,
+      teamLeadEmail: leadProfile.email,
     });
   } catch (err: any) {
+    console.error('[team-login] error:', err);
+
     return jsonResponse(500, {
       error: err.message || 'Server error',
     });
